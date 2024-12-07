@@ -1,0 +1,13 @@
+name = "edgetunnel3"
+type = "javascript"
+
+[env.production]
+workers_dev = true
+compatibility_date = "2024-12-08"
+
+[build]
+command = "npm install && npm run build"
+
+[site]
+bucket = "./"
+entry-point = "./_worker.js"
