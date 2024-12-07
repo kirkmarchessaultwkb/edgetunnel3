@@ -1,13 +1,16 @@
 name = "edgetunnel3"
 type = "javascript"
 
+# This section defines the environment
 [env.production]
 workers_dev = true
 compatibility_date = "2024-12-08"
 
+# Build configuration (if you have a build step)
 [build]
 command = "npm install && npm run build"
 
+# The assets to be deployed
 [site]
-bucket = "./"
-entry-point = "./_worker.js"
+bucket = "./"  # The folder where the code (including _worker.js) is located
+entry-point = "./_worker.js"  # Specify the main Worker file
