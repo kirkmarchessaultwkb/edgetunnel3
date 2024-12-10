@@ -1,4 +1,4 @@
-name = "ipbc"
+name = "ipbc"  # 手动修改同cloudflare中部署的项目名
 type = "javascript"  # 使用标准 JavaScript 模式
 
 [build]
