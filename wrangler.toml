@@ -1,11 +1,12 @@
-name = "ipbc"
-type = "javascript"
-
-# Set the directory for Pages
-pages_build_output_dir = "./"
-
-# Compatibility date
-compatibility_date = "2024-12-08"
+name = "edgetunnel3c" # 项目名称
+type = "javascript"   # 使用的 Worker 类型，确保与代码匹配
 
 [build]
-upload_format = "service-worker"
+upload = { format = "service-worker" }
+
+# 指定入口文件，_worker.js 是你的主入口文件
+main = "_worker.js"
+
+[vars]
+# 如果你有环境变量，可以在这里定义
+SENSITIVE_URL = "https://example.com"
