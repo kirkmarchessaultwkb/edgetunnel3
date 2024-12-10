@@ -1,12 +1,10 @@
-name = "edgetunnel3c" # 项目名称
-type = "javascript"   # 使用的 Worker 类型，确保与代码匹配
+name = "edgetunnel3c"
+type = "javascript"  # 使用标准 JavaScript 模式
 
 [build]
-upload = { format = "service-worker" }
+upload = { format = "service-worker" }  # 定义部署模式为 Service Worker
 
-# 指定入口文件，_worker.js 是你的主入口文件
-main = "_worker.js"
+main = "_worker.js"  # 指定入口文件
 
 [vars]
-# 如果你有环境变量，可以在这里定义
-SENSITIVE_URL = "https://example.com"
+SENSITIVE_URL = "https://example.com"  # 示例环境变量，实际替换为你需要的
