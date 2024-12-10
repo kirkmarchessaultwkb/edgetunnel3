@@ -1,4 +1,4 @@
-name = "edgetunnel3c"
+name = "ipbc"
 type = "javascript"  # 使用标准 JavaScript 模式
 
 [build]
