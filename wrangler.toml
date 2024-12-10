@@ -1,16 +1,11 @@
-name = "edgetunnel3"
+name = "edgetunnel3c"
 type = "javascript"
 
-# This section defines the environment
-[env.production]
-workers_dev = true
+# Set the directory for Pages
+pages_build_output_dir = "./"
+
+# Compatibility date
 compatibility_date = "2024-12-08"
 
-# Build configuration (if you have a build step)
 [build]
-command = "npm install && npm run build"
-
-# The assets to be deployed
-[site]
-bucket = "./"  # The folder where the code (including _worker.js) is located
-entry-point = "./_worker.js"  # Specify the main Worker file
+upload_format = "service-worker"
