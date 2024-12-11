@@ -1,10 +1,5 @@
 name = "ipbc"
-main = "_worker.js" # 入口文件名
-compatibility_date = "2023-01-01" # 设置为你的项目启动日期
-usage_model = "bundled" # 或 "unbound"，根据你的需求设置
+main_module = "_worker.js"
+workers_dev = true  # 如果你是在开发模式下测试
+compatibility_flags = []
 
-[build]
-command = "" # 无构建命令
-
-[upload]
-format = "modules" # Worker 使用模块模式
