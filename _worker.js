@@ -15,9 +15,17 @@ function validateFeatureCode(code) {
   return code === validCode;
 }
 
+// 定义日志功能以记录请求信息
+function logRequestDetails(request) {
+  const url = new URL(request.url);
+  console.log(`[Request] Method: ${request.method}, Path: ${url.pathname}, Query: ${url.search}`);
+}
+
 // 主 Worker 处理函数
 export default {
   async fetch(request) {
+    logRequestDetails(request); // 新增日志记录功能
+
     const url = new URL(request.url);
 
     // 提前声明需要的解码字段
@@ -43,8 +51,20 @@ export default {
       }
     }
 
+    // 新增路径 "/info" 返回请求信息
+    if (url.pathname === "/info") {
+      const info = {
+        method: request.method,
+        headers: [...request.headers.entries()],
+      };
+      return new Response(JSON.stringify(info, null, 2), {
+        headers: { "content-type": "application/json" },
+      });
+    }
+
     // 其他请求的默认响应
     return new Response("Request received", { status: 200 });
   },
 };
+
 
