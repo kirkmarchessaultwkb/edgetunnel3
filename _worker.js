@@ -33,3 +33,40 @@ async function fetchHandler(request) {
 export default {
   fetch: fetchHandler,
 };
+
+第2部分代码
+import { Router } from 'itty-router';
+
+const router = Router();
+
+// 第2部分代码
+router.get("/", () => {
+  return new Response("Worker is running!", { status: 200 });
+});
+
+// 示例的vless处理路由
+router.get("/vless", () => {
+  return new Response("VLESS endpoint reached!", { status: 200 });
+});
+
+// 处理VLESS协议的请求
+router.post("/vless", async (request) => {
+  const data = await request.json();
+
+  // 模拟处理VLESS数据
+  if (data && data.version === "vless") {
+    return new Response(JSON.stringify({ status: "success", message: "VLESS protocol processed" }), {
+      headers: { "Content-Type": "application/json" },
+      status: 200,
+    });
+  }
+
+  return new Response(JSON.stringify({ status: "error", message: "Invalid protocol" }), {
+    headers: { "Content-Type": "application/json" },
+    status: 400,
+  });
+});
+
+addEventListener("fetch", (event) => {
+  event.respondWith(router.handle(event.request));
+});
