@@ -1,10 +1,9 @@
-name = "ipbc"  # 手动修改同cloudflare中部署的项目名
-type = "javascript"  # 使用标准 JavaScript 模式
+name = "ipbc"
+main = "./_worker.js"
+compatibility_date = "2023-01-01" # 替换为你的实际兼容日期
 
 [build]
-upload = { format = "service-worker" }  # 定义部署模式为 Service Worker
+command = "" # 无需构建命令可留空
 
-main = "_worker.js"  # 指定入口文件
-
-[vars]
-SENSITIVE_URL = "https://example.com"  # 示例环境变量，实际替换为你需要的
+[upload]
+format = "service-worker" # 确保类型匹配
