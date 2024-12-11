@@ -29,10 +29,19 @@ function handleError(status, message) {
   });
 }
 
+// 定义请求重定向功能
+function handleRedirect(url, destination) {
+  const redirectUrl = new URL(destination, url.origin);
+  return new Response(null, {
+    status: 302,
+    headers: { Location: redirectUrl.toString() },
+  });
+}
+
 // 主 Worker 处理函数
 export default {
   async fetch(request) {
-    logRequestDetails(request); // 新增日志记录功能
+    logRequestDetails(request);
 
     const url = new URL(request.url);
 
@@ -40,14 +49,14 @@ export default {
     const encodedField = "dmxlc3M="; // "vless" 的 Base64 编码
     const decodedField = decodeField(encodedField);
 
-    // 针对路径 "/test" 的简单测试响应
+    // 路径 "/test" 的简单测试响应
     if (url.pathname === "/test") {
       return new Response(`Decoded Field: ${decodedField}`, {
         headers: { "content-type": "text/plain" },
       });
     }
 
-    // 新增路径 "/featureCode" 验证功能
+    // 路径 "/featureCode" 验证功能
     if (url.pathname === "/featureCode") {
       const featureCode = extractFeatureCode(request);
       if (featureCode && validateFeatureCode(featureCode)) {
@@ -59,7 +68,7 @@ export default {
       }
     }
 
-    // 新增路径 "/info" 返回请求信息
+    // 路径 "/info" 返回请求信息
     if (url.pathname === "/info") {
       const info = {
         method: request.method,
@@ -70,7 +79,7 @@ export default {
       });
     }
 
-    // 新增路径 "/decode" 解码 Base64 数据
+    // 路径 "/decode" 解码 Base64 数据
     if (url.pathname === "/decode") {
       const data = url.searchParams.get("data");
       if (!data) {
@@ -84,10 +93,16 @@ export default {
       }
     }
 
-    // 其他请求的默认响应
+    // 新增路径 "/redirect" 实现 URL 重定向功能
+    if (url.pathname === "/redirect") {
+      const destination = url.searchParams.get("to");
+      if (!destination) {
+        return handleError(400, "Missing 'to' parameter for redirection");
+      }
+      return handleRedirect(url, destination);
+    }
+
+    // 默认响应
     return new Response("Request received", { status: 200 });
   },
 };
-
-
-
