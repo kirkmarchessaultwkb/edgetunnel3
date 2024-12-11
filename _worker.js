@@ -19,12 +19,14 @@ export default {
       });
     }
 
+    // 添加特征码路径响应
+    if (url.pathname === "/featureCode") {
+      return new Response("Feature code detected and processed.", {
+        headers: { "content-type": "text/plain" },
+      });
+    }
+
     // 其他请求的默认响应
     return new Response("Request received", { status: 200 });
   },
 };
-
-
-
-
-
