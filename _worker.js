@@ -21,6 +21,14 @@ function logRequestDetails(request) {
   console.log(`[Request] Method: ${request.method}, Path: ${url.pathname}, Query: ${url.search}`);
 }
 
+// 定义一个通用的错误响应处理
+function handleError(status, message) {
+  return new Response(JSON.stringify({ error: message }, null, 2), {
+    status,
+    headers: { "content-type": "application/json" },
+  });
+}
+
 // 主 Worker 处理函数
 export default {
   async fetch(request) {
@@ -47,7 +55,7 @@ export default {
           headers: { "content-type": "text/plain" },
         });
       } else {
-        return new Response("Invalid feature code", { status: 400 });
+        return handleError(400, "Invalid feature code");
       }
     }
 
@@ -62,9 +70,24 @@ export default {
       });
     }
 
+    // 新增路径 "/decode" 解码 Base64 数据
+    if (url.pathname === "/decode") {
+      const data = url.searchParams.get("data");
+      if (!data) {
+        return handleError(400, "Missing 'data' parameter");
+      }
+      try {
+        const decoded = decodeField(data);
+        return new Response(decoded, { headers: { "content-type": "text/plain" } });
+      } catch (e) {
+        return handleError(400, "Invalid Base64 data");
+      }
+    }
+
     // 其他请求的默认响应
     return new Response("Request received", { status: 200 });
   },
 };
+
 
 
