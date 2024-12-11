@@ -4,11 +4,19 @@ addEventListener('fetch', event => {
 
 async function handleRequest(request) {
     const url = new URL(request.url);
-    // 核心特征码匹配逻辑
+    
+    // 路径匹配规则
     if (url.pathname.startsWith('/featureCode')) {
         return new Response('特征码校验成功', { status: 200 });
     }
-    return fetch(request); // 默认转发请求
+
+    // 默认处理：直接转发请求
+    try {
+        const response = await fetch(request);
+        return response;
+    } catch (err) {
+        return new Response(`错误: ${err.message}`, { status: 500 });
+    }
 }
 
 
