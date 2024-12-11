@@ -1,5 +1,10 @@
 name = "ipbc"
+type = "javascript"
+
+[build]
+command = "npm install"  # 如果需要安装依赖
+
+[env.production]
+name = "production"
 main_module = "_worker.js"
-workers_dev = true  # 如果你是在开发模式下测试
-compatibility_flags = []
 
