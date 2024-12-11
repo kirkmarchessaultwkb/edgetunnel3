@@ -3,6 +3,18 @@ function decodeField(encoded) {
   return atob(encoded);
 }
 
+// 提取特征码和验证请求的功能
+function extractFeatureCode(request) {
+  const url = new URL(request.url);
+  const params = url.searchParams;
+  return params.get("featureCode");
+}
+
+function validateFeatureCode(code) {
+  const validCode = "12345"; // 示例特征码，可根据需求调整
+  return code === validCode;
+}
+
 // 主 Worker 处理函数
 export default {
   async fetch(request) {
@@ -19,14 +31,20 @@ export default {
       });
     }
 
-    // 添加特征码路径响应
+    // 新增路径 "/featureCode" 验证功能
     if (url.pathname === "/featureCode") {
-      return new Response("Feature code detected and processed.", {
-        headers: { "content-type": "text/plain" },
-      });
+      const featureCode = extractFeatureCode(request);
+      if (featureCode && validateFeatureCode(featureCode)) {
+        return new Response("Feature code validated successfully!", {
+          headers: { "content-type": "text/plain" },
+        });
+      } else {
+        return new Response("Invalid feature code", { status: 400 });
+      }
     }
 
     // 其他请求的默认响应
     return new Response("Request received", { status: 200 });
   },
 };
+
