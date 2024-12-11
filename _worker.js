@@ -1,23 +1,28 @@
-addEventListener('fetch', event => {
-    event.respondWith(handleRequest(event.request));
-});
-
-async function handleRequest(request) {
-    const url = new URL(request.url);
-    
-    // 路径匹配规则
-    if (url.pathname.startsWith('/featureCode')) {
-        return new Response('特征码校验成功', { status: 200 });
-    }
-
-    // 默认处理：直接转发请求
-    try {
-        const response = await fetch(request);
-        return response;
-    } catch (err) {
-        return new Response(`错误: ${err.message}`, { status: 500 });
-    }
+// 解码 Base64 编码的敏感字段
+function decodeField(encoded) {
+  return atob(encoded);
 }
+
+// 主 Worker 处理函数
+export default {
+  async fetch(request) {
+    const url = new URL(request.url);
+
+    // 提前声明需要的解码字段
+    const encodedField = "dmxlc3M="; // "vless" 的 Base64 编码
+    const decodedField = decodeField(encodedField);
+
+    // 针对路径 "/test" 的简单测试响应
+    if (url.pathname === "/test") {
+      return new Response(`Decoded Field: ${decodedField}`, {
+        headers: { "content-type": "text/plain" },
+      });
+    }
+
+    // 其他请求的默认响应
+    return new Response("Request received", { status: 200 });
+  },
+};
 
 
 
