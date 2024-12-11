@@ -1,4 +1,4 @@
-name = "ipbc"
+name = "ip"
 type = "javascript"
 
 [build]
