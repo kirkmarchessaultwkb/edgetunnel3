@@ -1,9 +1,6 @@
 name = "ipbc"
 main = "./_worker.js"
-compatibility_date = "2023-01-01" # 替换为你的实际兼容日期
-
-[build]
-command = "" # 无需构建命令可留空
+compatibility_date = "2023-01-01"
 
 [upload]
-format = "service-worker" # 确保类型匹配
+format = "modules" # 切换为模块化 Worker
