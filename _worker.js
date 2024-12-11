@@ -60,3 +60,51 @@ async function proxyRequest(request) {
 addEventListener("fetch", (event) => {
     event.respondWith(handleRequest(event.request));
 });
+// 部分 2，编号 2
+// 接续第一部分的代码...
+function parseHeaders(headers) {
+    let parsedHeaders = {};
+    for (let [key, value] of headers) {
+        parsedHeaders[key.toLowerCase()] = value;
+    }
+    return parsedHeaders;
+}
+
+async function handleRequest(request) {
+    const url = new URL(request.url);
+    const targetUrl = decodeURIComponent(url.searchParams.get("target"));
+
+    let modifiedHeaders = new Headers(request.headers);
+    modifiedHeaders.set("x-custom-header", "customValue");
+
+    const init = {
+        method: request.method,
+        headers: modifiedHeaders,
+        body: request.method === "GET" ? null : request.body,
+    };
+
+    const response = await fetch(targetUrl, init);
+    const responseHeaders = parseHeaders(response.headers);
+
+    return new Response(response.body, {
+        status: response.status,
+        headers: responseHeaders,
+    });
+}
+
+// 增加更多逻辑...
+async function fetchResource(resourceUrl) {
+    try {
+        const response = await fetch(resourceUrl);
+        if (response.ok) {
+            return await response.text();
+        }
+        return null;
+    } catch (error) {
+        console.error("Fetch failed:", error);
+        return null;
+    }
+}
+
+// 调试代码
+console.log("部分 2 加载完成");
