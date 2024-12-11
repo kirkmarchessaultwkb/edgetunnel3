@@ -1,5 +1,5 @@
 name = "ipbc"
-main = "./_worker.js" # 入口文件名
+main = "_worker.js" # 入口文件名
 compatibility_date = "2023-01-01" # 设置为你的项目启动日期
 usage_model = "bundled" # 或 "unbound"，根据你的需求设置
 
