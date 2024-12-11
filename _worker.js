@@ -38,6 +38,17 @@ function handleRedirect(url, destination) {
   });
 }
 
+// 新增高级日志功能
+function logAdvancedDetails(request, response) {
+  const logDetails = {
+    method: request.method,
+    url: request.url,
+    status: response.status,
+    timestamp: new Date().toISOString(),
+  };
+  console.log(`[Advanced Log]`, JSON.stringify(logDetails, null, 2));
+}
+
 // 主 Worker 处理函数
 export default {
   async fetch(request) {
@@ -51,20 +62,26 @@ export default {
 
     // 路径 "/test" 的简单测试响应
     if (url.pathname === "/test") {
-      return new Response(`Decoded Field: ${decodedField}`, {
+      const response = new Response(`Decoded Field: ${decodedField}`, {
         headers: { "content-type": "text/plain" },
       });
+      logAdvancedDetails(request, response);
+      return response;
     }
 
     // 路径 "/featureCode" 验证功能
     if (url.pathname === "/featureCode") {
       const featureCode = extractFeatureCode(request);
       if (featureCode && validateFeatureCode(featureCode)) {
-        return new Response("Feature code validated successfully!", {
+        const response = new Response("Feature code validated successfully!", {
           headers: { "content-type": "text/plain" },
         });
+        logAdvancedDetails(request, response);
+        return response;
       } else {
-        return handleError(400, "Invalid feature code");
+        const response = handleError(400, "Invalid feature code");
+        logAdvancedDetails(request, response);
+        return response;
       }
     }
 
@@ -74,35 +91,50 @@ export default {
         method: request.method,
         headers: [...request.headers.entries()],
       };
-      return new Response(JSON.stringify(info, null, 2), {
+      const response = new Response(JSON.stringify(info, null, 2), {
         headers: { "content-type": "application/json" },
       });
+      logAdvancedDetails(request, response);
+      return response;
     }
 
     // 路径 "/decode" 解码 Base64 数据
     if (url.pathname === "/decode") {
       const data = url.searchParams.get("data");
       if (!data) {
-        return handleError(400, "Missing 'data' parameter");
+        const response = handleError(400, "Missing 'data' parameter");
+        logAdvancedDetails(request, response);
+        return response;
       }
       try {
         const decoded = decodeField(data);
-        return new Response(decoded, { headers: { "content-type": "text/plain" } });
+        const response = new Response(decoded, { headers: { "content-type": "text/plain" } });
+        logAdvancedDetails(request, response);
+        return response;
       } catch (e) {
-        return handleError(400, "Invalid Base64 data");
+        const response = handleError(400, "Invalid Base64 data");
+        logAdvancedDetails(request, response);
+        return response;
       }
     }
 
-    // 新增路径 "/redirect" 实现 URL 重定向功能
+    // 路径 "/redirect" 实现 URL 重定向功能
     if (url.pathname === "/redirect") {
       const destination = url.searchParams.get("to");
       if (!destination) {
-        return handleError(400, "Missing 'to' parameter for redirection");
+        const response = handleError(400, "Missing 'to' parameter for redirection");
+        logAdvancedDetails(request, response);
+        return response;
       }
-      return handleRedirect(url, destination);
+      const response = handleRedirect(url, destination);
+      logAdvancedDetails(request, response);
+      return response;
     }
 
     // 默认响应
-    return new Response("Request received", { status: 200 });
+    const response = new Response("Request received", { status: 200 });
+    logAdvancedDetails(request, response);
+    return response;
   },
 };
+
