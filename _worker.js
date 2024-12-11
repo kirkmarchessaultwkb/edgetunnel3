@@ -1,38 +1,16 @@
-// 路由管理函数
-function handleRequest(url, decodedField) {
-  switch (url.pathname) {
-    case "/status":
-      return new Response("Worker is running!", { status: 200 });
+addEventListener('fetch', event => {
+    event.respondWith(handleRequest(event.request));
+});
 
-    case "/decoded":
-      return new Response(`Sensitive Field Decoded: ${decodedField}`, {
-        headers: { "content-type": "text/plain" },
-      });
-
-    default:
-      return new Response("Route not found", { status: 404 });
-  }
+async function handleRequest(request) {
+    const url = new URL(request.url);
+    // 核心特征码匹配逻辑
+    if (url.pathname.startsWith('/featureCode')) {
+        return new Response('特征码校验成功', { status: 200 });
+    }
+    return fetch(request); // 默认转发请求
 }
 
-// 主 Worker 处理函数
-async function fetchHandler(request) {
-  const url = new URL(request.url);
-
-  // 解码敏感字段
-  const encodedField = "dmxlc3M="; // "vless" 的 Base64 编码
-  const decodedField = atob(encodedField);
-
-  // 记录请求日志
-  console.log(`Received request for: ${url.pathname}`);
-
-  // 路由管理
-  return handleRequest(url, decodedField);
-}
-
-// 合并唯一导出
-export default {
-  fetch: fetchHandler,
-};
 
 
 
