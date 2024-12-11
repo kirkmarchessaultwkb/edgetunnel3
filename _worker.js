@@ -34,12 +34,14 @@ export default {
   fetch: fetchHandler,
 };
 
-第2部分代码
+
+
+//第2部分代码
 import { Router } from 'itty-router';
 
 const router = Router();
 
-// 第2部分代码
+// 简单的健康检查路由
 router.get("/", () => {
   return new Response("Worker is running!", { status: 200 });
 });
