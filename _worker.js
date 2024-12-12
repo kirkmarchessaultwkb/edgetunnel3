@@ -37,6 +37,15 @@ function jsonResponse(data, status = 200) {
   });
 }
 
+// 提供 IP 地址和元数据提取功能
+function extractClientDetails(request) {
+  return {
+    ip: request.headers.get("cf-connecting-ip") || "Unknown",
+    userAgent: request.headers.get("user-agent") || "Unknown",
+    time: new Date().toISOString(),
+  };
+}
+
 // 主 Worker 处理函数
 export default {
   async fetch(request) {
@@ -47,6 +56,12 @@ export default {
     // 提前声明需要的解码字段
     const encodedField = "dmxlc3M="; // "vless" 的 Base64 编码
     const decodedField = decodeField(encodedField);
+
+    // 新增路径 "/client-info"：返回客户端信息
+    if (url.pathname === "/client-info") {
+      const clientDetails = extractClientDetails(request);
+      return jsonResponse(clientDetails);
+    }
 
     // 新增路径 "/feature" 用于验证特征码
     if (url.pathname === "/feature") {
