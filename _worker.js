@@ -29,6 +29,14 @@ function handleError(status, message) {
   });
 }
 
+// 工具函数：返回 JSON 响应
+function jsonResponse(data, status = 200) {
+  return new Response(JSON.stringify(data, null, 2), {
+    status,
+    headers: { "content-type": "application/json" },
+  });
+}
+
 // 主 Worker 处理函数
 export default {
   async fetch(request) {
@@ -40,20 +48,23 @@ export default {
     const encodedField = "dmxlc3M="; // "vless" 的 Base64 编码
     const decodedField = decodeField(encodedField);
 
-    // 新增路径 "/headers" 返回所有请求头
-    if (url.pathname === "/headers") {
-      const headers = [...request.headers.entries()];
-      const response = new Response(JSON.stringify({ headers }, null, 2), {
-        headers: { "content-type": "application/json" },
-      });
-      return response;
+    // 新增路径 "/feature" 用于验证特征码
+    if (url.pathname === "/feature") {
+      const featureCode = extractFeatureCode(request);
+      if (!featureCode) {
+        return handleError(400, "Feature code is required.");
+      }
+
+      if (!validateFeatureCode(featureCode)) {
+        return handleError(403, "Invalid feature code.");
+      }
+
+      return jsonResponse({ message: "Feature code validated successfully!" });
     }
 
-    // 新增路径 "/echo" 返回请求体内容
-    if (url.pathname === "/echo") {
-      const body = await request.text();
-      const response = new Response(body, { headers: { "content-type": "text/plain" } });
-      return response;
+    // 新增路径 "/status" 返回服务状态
+    if (url.pathname === "/status") {
+      return jsonResponse({ status: "Service is running", uptime: process.uptime() });
     }
 
     // 路径 "/test" 的简单测试响应
@@ -67,5 +78,6 @@ export default {
     return new Response("Request received", { status: 200 });
   },
 };
+
 
 
