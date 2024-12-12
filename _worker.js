@@ -1,29 +1,25 @@
-// 混淆处理的工具函数
-function obfuscateBase64(input) {
-  return btoa(input.split('').reverse().join('')); // 将字符串反转并编码为 Base64
+// 工具函数：动态生成路径映射
+function dynamicPathMapping(path) {
+  const obfuscatedPath = btoa(path).slice(0, 8); // 对路径进行部分混淆
+  return `/dynamic-${obfuscatedPath}`;
 }
 
-function deobfuscateBase64(encoded) {
-  return atob(encoded).split('').reverse().join(''); // 解码并还原字符串
-}
-
-// 主 Worker 处理函数
+// Worker 主逻辑
 export default {
   async fetch(request) {
     const url = new URL(request.url);
 
-    // 使用混淆后的敏感字段
-    const encodedField = obfuscateBase64("vless"); // "vless" 的混淆编码
-    const decodedField = deobfuscateBase64(encodedField);
+    // 动态路径匹配逻辑
+    const targetPath = dynamicPathMapping("status");
 
-    // 针对路径 "/test" 的测试响应
-    if (url.pathname === "/test") {
-      return new Response(`Decoded Field: ${decodedField}`, {
+    if (url.pathname === targetPath) {
+      return new Response("Status Check: All systems operational.", {
         headers: { "content-type": "text/plain" },
       });
     }
 
-    // 默认响应
+    // 其他路径处理
     return new Response("Request received", { status: 200 });
   },
 };
+
