@@ -29,26 +29,6 @@ function handleError(status, message) {
   });
 }
 
-// 定义请求重定向功能
-function handleRedirect(url, destination) {
-  const redirectUrl = new URL(destination, url.origin);
-  return new Response(null, {
-    status: 302,
-    headers: { Location: redirectUrl.toString() },
-  });
-}
-
-// 新增高级日志功能
-function logAdvancedDetails(request, response) {
-  const logDetails = {
-    method: request.method,
-    url: request.url,
-    status: response.status,
-    timestamp: new Date().toISOString(),
-  };
-  console.log(`[Advanced Log]`, JSON.stringify(logDetails, null, 2));
-}
-
 // 主 Worker 处理函数
 export default {
   async fetch(request) {
@@ -60,81 +40,30 @@ export default {
     const encodedField = "dmxlc3M="; // "vless" 的 Base64 编码
     const decodedField = decodeField(encodedField);
 
-    // 路径 "/test" 的简单测试响应
-    if (url.pathname === "/test") {
-      const response = new Response(`Decoded Field: ${decodedField}`, {
-        headers: { "content-type": "text/plain" },
-      });
-      logAdvancedDetails(request, response);
-      return response;
-    }
-
-    // 路径 "/featureCode" 验证功能
-    if (url.pathname === "/featureCode") {
-      const featureCode = extractFeatureCode(request);
-      if (featureCode && validateFeatureCode(featureCode)) {
-        const response = new Response("Feature code validated successfully!", {
-          headers: { "content-type": "text/plain" },
-        });
-        logAdvancedDetails(request, response);
-        return response;
-      } else {
-        const response = handleError(400, "Invalid feature code");
-        logAdvancedDetails(request, response);
-        return response;
-      }
-    }
-
-    // 路径 "/info" 返回请求信息
-    if (url.pathname === "/info") {
-      const info = {
-        method: request.method,
-        headers: [...request.headers.entries()],
-      };
-      const response = new Response(JSON.stringify(info, null, 2), {
+    // 新增路径 "/headers" 返回所有请求头
+    if (url.pathname === "/headers") {
+      const headers = [...request.headers.entries()];
+      const response = new Response(JSON.stringify({ headers }, null, 2), {
         headers: { "content-type": "application/json" },
       });
-      logAdvancedDetails(request, response);
       return response;
     }
 
-    // 路径 "/decode" 解码 Base64 数据
-    if (url.pathname === "/decode") {
-      const data = url.searchParams.get("data");
-      if (!data) {
-        const response = handleError(400, "Missing 'data' parameter");
-        logAdvancedDetails(request, response);
-        return response;
-      }
-      try {
-        const decoded = decodeField(data);
-        const response = new Response(decoded, { headers: { "content-type": "text/plain" } });
-        logAdvancedDetails(request, response);
-        return response;
-      } catch (e) {
-        const response = handleError(400, "Invalid Base64 data");
-        logAdvancedDetails(request, response);
-        return response;
-      }
+    // 新增路径 "/echo" 返回请求体内容
+    if (url.pathname === "/echo") {
+      const body = await request.text();
+      const response = new Response(body, { headers: { "content-type": "text/plain" } });
+      return response;
     }
 
-    // 路径 "/redirect" 实现 URL 重定向功能
-    if (url.pathname === "/redirect") {
-      const destination = url.searchParams.get("to");
-      if (!destination) {
-        const response = handleError(400, "Missing 'to' parameter for redirection");
-        logAdvancedDetails(request, response);
-        return response;
-      }
-      const response = handleRedirect(url, destination);
-      logAdvancedDetails(request, response);
-      return response;
+    // 路径 "/test" 的简单测试响应
+    if (url.pathname === "/test") {
+      return new Response(`Decoded Field: ${decodedField}`, {
+        headers: { "content-type": "text/plain" },
+      });
     }
 
     // 默认响应
-    const response = new Response("Request received", { status: 200 });
-    logAdvancedDetails(request, response);
-    return response;
+    return new Response("Request received", { status: 200 });
   },
 };
-
