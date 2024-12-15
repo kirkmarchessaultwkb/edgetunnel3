@@ -154,17 +154,32 @@ async function handleVlessFeature(request) {
   const url = new URL(request.url);
   const path = url.pathname;
 
-  // Assuming vless-related paths contain 'vless' and need to be adjusted
+  // 继续从之前的代码调整。
+// 检查 `proxyUrls` 是否已经定义过，避免重复声明
+if (typeof proxyUrls === 'undefined') {
+  const proxyUrls = [
+    'https://104.21.116.81:443',
+    'https://103.51.145.203:8443',
+    // 添加更多代理 URL 如有需要
+  ];
+}
+
+// 修改 vless 相关功能，避免触发 1101 错误。
+async function handleVlessFeature(request) {
+  const url = new URL(request.url);
+  const path = url.pathname;
+
+  // 假设 vless 相关路径包含 'vless'，需要进行调整
   if (path.includes('vless')) {
-    // Modify feature here to avoid 1101 trigger
-    const modifiedPath = path.replace('vless', 'vless-modified'); // Sample modification
+    // 修改路径以避免触发 1101 错误
+    const modifiedPath = path.replace('vless', 'vless-modified'); // 示例修改
     return new Response(`Modified vless path: ${modifiedPath}`, { status: 200 });
   }
 
   return new Response('Invalid vless path', { status: 404 });
 }
 
-// Handling other authentication and proxy as per previous parts.
+// 主请求处理函数中集成 vless 功能
 async function handleRequest(request) {
   const url = new URL(request.url);
   if (url.pathname === '/authenticate') {
@@ -172,13 +187,16 @@ async function handleRequest(request) {
   } else if (url.pathname.startsWith('/proxy/')) {
     return handleProxyRequest(request);
   } else if (url.pathname.includes('vless')) {
-    return handleVlessFeature(request);  // Handling modified vless paths
+    return handleVlessFeature(request);  // 处理修改后的 vless 路径
   } else {
     return new Response('Invalid endpoint', { status: 404 });
   }
 }
 
-addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request));
-});
-//
+// 确保 fetch 事件监听器不会重复注册
+if (!self.hasEventListener) {
+  self.addEventListener('fetch', event => {
+    event.respondWith(handleRequest(event.request));
+  });
+  self.hasEventListener = true;
+}
