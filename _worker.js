@@ -188,3 +188,69 @@ if (!self.hasEventListener) {
   });
   self.hasEventListener = true;
 }
+
+
+
+// 添加全局错误处理逻辑，确保捕获意外错误
+async function handleErrors(request, handler) {
+  try {
+    return await handler(request);
+  } catch (err) {
+    console.error('Error occurred:', err);
+    return new Response('Internal Server Error', { status: 500 });
+  }
+}
+
+// 添加重试逻辑
+async function retryRequest(request, retries = 3) {
+  let response;
+  for (let i = 0; i < retries; i++) {
+    try {
+      response = await fetch(request);
+      if (response.ok) {
+        return response;
+      }
+    } catch (err) {
+      console.error(`Retry ${i + 1} failed:`, err);
+    }
+  }
+  return new Response('Failed after retries', { status: 500 });
+}
+
+// 将 vless 特征码路径逻辑集成到错误处理流程
+async function handleVlessPathWithRetry(request) {
+  const url = new URL(request.url);
+  if (url.pathname.includes('vless')) {
+    const modifiedPath = url.pathname.replace('vless', 'vless-modified');
+    const newRequest = new Request(`${url.origin}${modifiedPath}`, request);
+    return await retryRequest(newRequest);
+  }
+  return new Response('Invalid vless path', { status: 404 });
+}
+
+// 主请求处理逻辑扩展，加入错误捕获和重试机制
+async function handleRequestWithImprovements(request) {
+  return handleErrors(request, async (req) => {
+    const url = new URL(req.url);
+    if (url.pathname === '/authenticate') {
+      return handleAuthentication(req);
+    } else if (url.pathname.startsWith('/proxy/')) {
+      return handleProxyRequest(req);
+    } else if (url.pathname.includes('vless')) {
+      return handleVlessPathWithRetry(req);
+    } else {
+      return new Response('Invalid endpoint', { status: 404 });
+    }
+  });
+}
+
+// 确保 fetch 事件监听器正确注册
+if (!self.hasEventListenerImproved) {
+  self.addEventListener('fetch', (event) => {
+    event.respondWith(handleRequestWithImprovements(event.request));
+  });
+  self.hasEventListenerImproved = true;
+}
+
+
+
