@@ -1,3 +1,33 @@
+const CONFIG = {
+  PROXYIP: "us1.xunda.nyc.mn", // 默认值，可根据需要修改
+  UUID: "919108fa-2273-4499-86d5-390226414f90", // 您提供的 UUID
+  VLESS_FEATURE: "vless-modified", // 修改后的特征码
+  WORKERS_URL: "https://apib.xunda.nyc.mn" // 自定义域名
+};
+
+// 基础配置
+const PROXY_PATHS = [
+  "/google", // 示例，代理 Google
+  "/chatgpt" // 示例，代理 ChatGPT
+];
+
+// 根据 UUID 动态生成订阅链接
+function generateSubscriptionURL(uuid) {
+  return `${CONFIG.WORKERS_URL}/${uuid}`;
+}
+
+// 检查是否需要代理访问
+function needsProxy(url) {
+  for (const path of PROXY_PATHS) {
+    if (url.includes(path)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+
+
 
 // 部署完成后在网址后面加上这个，获取订阅器默认节点，/auto
 
