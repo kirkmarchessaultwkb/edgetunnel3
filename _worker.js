@@ -253,4 +253,60 @@ if (!self.hasEventListenerImproved) {
 }
 
 
+// 日志记录函数
+function logRequestResponse(request, response) {
+  const logData = {
+    timestamp: new Date().toISOString(),
+    request: {
+      method: request.method,
+      url: request.url,
+      headers: [...request.headers],
+    },
+    response: {
+      status: response.status,
+      statusText: response.statusText,
+      headers: [...response.headers],
+    },
+  };
+  console.log(JSON.stringify(logData, null, 2));
+}
+
+// 并发限制的队列管理器
+class RequestQueue {
+  constructor(maxConcurrentRequests) {
+    this.maxConcurrentRequests = maxConcurrentRequests;
+    this.currentRequests = 0;
+    this.queue = [];
+  }
+
+  async addRequest(requestHandler) {
+    if (this.currentRequests >= this.maxConcurrentRequests) {
+      await new Promise((resolve) => this.queue.push(resolve));
+    }
+    this.currentRequests++;
+    try {
+      return await requestHandler();
+    } finally {
+      this.currentRequests--;
+      if (this.queue.length > 0) {
+        const next = this.queue.shift();
+        next();
+      }
+    }
+  }
+}
+
+// 初始化请求队列
+const requestQueue = new RequestQueue(10); // 最大并发请求数设置为10
+
+// 修改 fetch 事件逻辑，加入日志记录和队列管理
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    requestQueue.addRequest(async () => {
+      const response = await handleRequestWithImprovements(event.request);
+      logRequestResponse(event.request, response);
+      return response;
+    })
+  );
+});
 
