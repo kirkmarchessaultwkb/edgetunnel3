@@ -142,19 +142,7 @@ addEventListener('fetch', event => {
 });
 
 
-// Continue from the last provided code. Modify only the vless-related feature code.
-const proxyUrls = [
-  'https://104.21.116.81:443',
-  'https://103.51.145.203:8443',
-  // Add more proxy URLs as needed
-];
-
-// Modify vless-related feature to avoid triggering 1101 error.
-async function handleVlessFeature(request) {
-  const url = new URL(request.url);
-  const path = url.pathname;
-
-  // 继续从之前的代码调整。
+// 继续从之前的代码调整。
 // 检查 `proxyUrls` 是否已经定义过，避免重复声明
 if (typeof proxyUrls === 'undefined') {
   const proxyUrls = [
